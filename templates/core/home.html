@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% block page_name %}Home{% endblock %}
 {% block title %}{% if user.is_authenticated %}Your member home{% else %}Welcome · {{ SITE_NAME }}{% endif %}{% endblock %}
 
 {% block content %}
