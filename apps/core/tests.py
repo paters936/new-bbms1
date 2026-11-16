@@ -22,7 +22,7 @@ class CorePageTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertContains(response, "Setting up")
         self.assertContains(response, "Your next steps")
-        self.assertNotContains(response, "View today\'s activity")
+        self.assertNotContains(response, "View today's activity")
 
     def test_login_page_and_login(self):
         Member.objects.create_user("kim@example.com", "a-good-password", given_name="Kim", family_name="K")
