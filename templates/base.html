@@ -10,8 +10,11 @@
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
   <link rel="stylesheet" href="{% static 'css/member-pages.css' %}">
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <link rel="stylesheet" href="{% static 'css/ux-polish.css' %}">
+  <script src="{% static 'js/ux-polish.js' %}" defer></script>
 </head>
 <body class="{% block body_class %}{% endblock %}" data-theme="{{ THEME }}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <a class="ux-skip" href="#main-content">Skip to content</a>
   {% if DEMO_SITE %}<p class="demo-banner" role="note"><strong>Demo site.</strong> Everyone here is made up, payments are pretend and no emails are sent. Try anything.</p>{% endif %}
   {% if user.is_authenticated %}
     <div class="portal">
@@ -62,7 +65,7 @@
             <a class="portal-notifications" href="{% url 'notifications:list' %}" aria-label="Notifications{% if unread_notifications %}, {{ unread_notifications }} unread{% endif %}">
               <span aria-hidden="true">♧</span>{% if unread_notifications %}<span class="portal-notifications__dot" aria-hidden="true"></span>{% endif %}
             </a>
-            <a class="portal-account" href="{% url 'members:account' %}"><span class="portal-account__avatar" aria-hidden="true">{{ user.get_short_name|slice:":1" }}</span><span>{{ user.get_short_name }}</span><span aria-hidden="true">⌄</span></a>
+            <a class="portal-account" href="{% url 'members:account' %}"><span class="portal-account__avatar" aria-hidden="true">{{ user.get_short_name|slice:":1" }}</span><span>{{ user.get_short_name }}</span></a>
             <form method="post" action="{% url 'logout' %}" class="portal-logout" data-confirm-logout>{% csrf_token %}
               <button type="submit" class="portal-topbar__logout" title="Log out"><svg class="logout-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span class="visually-hidden">Log out</span></button></form>
           </div>
@@ -110,7 +113,7 @@
     </header>
     {% if messages %}<ul class="messages">{% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}</ul>{% endif %}
   {% endif %}
-  <main class="{% if user.is_authenticated %}portal-main{% endif %}">{% block content %}{% endblock %}</main>
+  <main id="main-content" tabindex="-1" class="{% if user.is_authenticated %}portal-main{% endif %}">{% block content %}{% endblock %}</main>
   {% if user.is_authenticated %}
     <footer class="portal-footer"><a href="{% url 'resources' %}">Rules and policies</a>{% if IS_MEMBER %}<a href="{% url 'feedback' %}">Feedback</a>{% endif %}</footer>
     </div>

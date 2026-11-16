@@ -163,6 +163,15 @@ class OnlineCourseTests(PagesTestCase):
         self.assertContains(response, "recorded that you&#x27;ve finished the course")
         self.assertContains(response, "You've finished it.")
 
+    def test_course_link_is_visible_before_and_after_completion(self):
+        response = self.client.get(self.url)
+        self.assertContains(response, "https://learning.buildbrighton.com/course/view.php?id=7")
+        self.assertContains(response, "Open the course for")
+        TrainingCompletion.objects.create(member=self.kim, moodle_course_id=7, completed_at=timezone.now())
+        response = self.client.get(self.url)
+        self.assertContains(response, "https://learning.buildbrighton.com/course/view.php?id=7")
+        self.assertContains(response, "Revisit the course for")
+
     def test_check_now_never_sends_you_to_another_site(self):
         response = self.client.post(reverse("moodle:check-now", args=[7]), {"next": "https://evil.example/"})
         self.assertEqual(response["Location"], reverse("moodle:training"))

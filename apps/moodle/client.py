@@ -63,8 +63,8 @@ def enabled() -> bool:
 
 
 def course_link(course_id: int) -> str:
-    """Where a member takes the course. Empty if Moodle's address isn't set."""
-    base = moodle_url()
+    """Link to training without enabling the API or changing access requirements."""
+    base = moodle_url() or "https://learning.buildbrighton.com"
     return f"{base}/course/view.php?id={course_id}" if base else ""
 
 

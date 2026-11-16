@@ -49,7 +49,7 @@
         {% if field.help_text %}<span class="hint">{{ field.help_text }}</span>{% endif %}
         {% if field.errors %}<span class="error" id="{{ field.auto_id }}_errors">{{ field.errors|join:" " }}</span>{% endif %}
       {% endfor %}
-      <button type="submit">Send</button>
+      <button type="submit">Send identity documents</button>
     </form>
     {% endif %}
   {% endif %}

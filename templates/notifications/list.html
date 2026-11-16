@@ -21,7 +21,7 @@
     <div class="card notification member-notification{% if notification.unread %} unread{% endif %}">
       <p>
         {% if notification.unread %}<strong>{{ notification.message }}</strong>{% else %}{{ notification.message }}{% endif %}
-        {% if notification.url %}<br><a href="{% url 'notifications:open' notification.pk %}">Open</a>{% endif %}
+        {% if notification.url %}<br><a href="{% url 'notifications:open' notification.pk %}">View update</a>{% endif %}
       </p>
       <div class="hint member-notification__meta"><time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|date:"j F Y, H:i" }} ·</time>
         <form method="post" action="{% url 'notifications:mark' notification.pk 'read' %}" class="inline">

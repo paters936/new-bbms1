@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load money %}
 {% block page_name %}Home{% endblock %}
 {% block title %}{% if user.is_authenticated %}Your member home{% else %}Welcome · {{ SITE_NAME }}{% endif %}{% endblock %}
 {% block content %}
@@ -6,18 +7,26 @@
     <div class="home-dashboard">
       <section class="home-hero" aria-label="Your membership">
         <div class="home-welcome">
+          {% if member_photo_url %}<img class="ux-home-avatar" src="{{ member_photo_url }}" alt="Your profile photo" width="64" height="64">{% endif %}
           <p class="eyebrow">Your Build Brighton membership</p>
           <h1 id="member-home-title">Hello, {{ user.get_short_name }}</h1>
           <p class="membership-status"><span class="membership-status__dot" aria-hidden="true"></span>Membership status: <strong>{{ user.get_status_display }}</strong></p>
-          <p class="home-welcome__description">Your space, your tools, your community.</p>
+          <p class="home-welcome__description">{% if last_visit %}Last in {{ last_visit|date:"j F Y" }}{% else %}Your space, your tools, your community.{% endif %}</p>
         </div>
-        <aside class="home-presence">
+        {% if IS_MEMBER %}<aside class="home-presence">
           <span class="home-presence__icon" aria-hidden="true">◉</span>
           <h2>Who's in the space?</h2>
           <p>See who's here and today's activity.</p>
           <a class="home-presence__button" href="{% url 'access:activity' %}">View today's activity <span aria-hidden="true">→</span></a>
-        </aside>
+        </aside>{% endif %}
       </section>
+      {% include "core/_next_actions.html" %}
+      <section class="ux-overview" aria-label="Your membership at a glance">
+        <article class="card"><h2>Your credit</h2><strong class="ux-value">{{ credit_pence|pounds }}</strong><a class="member-button" href="{% url 'payments:credit' %}">Top up or view history</a></article>
+        <article class="card"><h2>Space access</h2><p>{% if not door_reason %}Your fob opens the door, 24 hours a day.{% else %}Check your access status and any steps still needed.{% endif %}</p><a class="member-button" href="{% url 'members:account' %}#access-training">View access and training</a></article>
+        <article class="card"><h2>Your account</h2><p>Membership, payments and your personal details.</p><a class="member-button" href="{% url 'members:account' %}">Manage your account</a></article>
+      </section>
+      {% if IS_MEMBER %}
       <section class="quick-links-section" aria-labelledby="quick-links-title">
         <div class="quick-links-heading">
           <h2 id="quick-links-title">Quick links</h2>
@@ -41,6 +50,8 @@
           </a>
         </div>
       </section>
+      {% endif %}
+      <details class="ux-preferences"><summary>Display preferences</summary>
       <section class="theme-switch" aria-labelledby="theme-switch-title">
         <h2 id="theme-switch-title">Theme</h2>
         <form method="post" action="{% url 'set_theme' %}">
@@ -53,6 +64,7 @@
           {% endfor %}
         </form>
       </section>
+      </details>
     </div>
   {% else %}
     <section class="welcome-intro" aria-labelledby="welcome-title">

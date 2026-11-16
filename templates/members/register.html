@@ -9,12 +9,15 @@
   <p>Fill this in to create your account. You'll set up your monthly payment on the next page.
     Already a member? <a href="{% url 'login' %}">Log in</a>.</p>
 
+  <nav class="ux-jump-links" aria-label="Registration sections"><a href="#join-about">1. About you</a><a href="#join-address">2. Address</a><a href="#join-membership">3. Membership</a></nav>
+  <p class="hint">Complete these three sections to create your account. Payment and induction follow on your account page.</p>
+  {% if form.errors %}<div class="error ux-error-summary" role="alert"><h2>Please check your details</h2><ul>{% for field in form %}{% if field.errors %}<li><a href="#{{ field.auto_id }}">{{ field.label }}: {{ field.errors|join:" " }}</a></li>{% endif %}{% endfor %}</ul></div>{% endif %}
   <form method="post" class="stack form card" novalidate>
     {% csrf_token %}
     {% if form.non_field_errors %}<div class="error">{{ form.non_field_errors }}</div>{% endif %}
 
-    <fieldset>
-      <legend>About you</legend>
+    <fieldset id="join-about">
+      <legend>1. About you</legend>
       {% include "members/_field.html" with field=form.given_name autocomplete="given-name" %}
       {% include "members/_field.html" with field=form.family_name autocomplete="family-name" %}
       {% include "members/_field.html" with field=form.email autocomplete="email" %}
@@ -23,8 +26,8 @@
       {% include "members/_field.html" with field=form.emergency_contact %}
     </fieldset>
 
-    <fieldset>
-      <legend>Address</legend>
+    <fieldset id="join-address">
+      <legend>2. Address</legend>
       {% include "members/_field.html" with field=form.address_line_1 autocomplete="address-line1" %}
       {% include "members/_field.html" with field=form.address_line_2 autocomplete="address-line2" %}
       {% include "members/_field.html" with field=form.address_line_3 autocomplete="address-line3" %}
@@ -32,11 +35,11 @@
       {% include "members/_field.html" with field=form.postcode autocomplete="postal-code" %}
     </fieldset>
 
-    <fieldset>
-      <legend>Membership</legend>
+    <fieldset id="join-membership">
+      <legend>3. Membership</legend>
       {% include "members/_field.html" with field=form.monthly_subscription %}
       {% include "members/_field.html" with field=form.rules_agreed %}
-      {# TODO(policies, 06 §6.8): link to the rules once /resources/policy/rules exists. #}
+      <p><a href="{% url 'policy' 'rules' %}" target="_blank" rel="noopener">Read the rules (opens in a new tab)</a></p>
       {% include "members/_field.html" with field=form.visited_space %}
     </fieldset>
 

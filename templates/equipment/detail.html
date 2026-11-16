@@ -35,6 +35,53 @@
       {{ equipment.status_note }}{% endif %}</p>
   {% endif %}
 
+  <section class="card ux-machine-access" id="machine-access">
+    <h2>Can I use this machine?</h2>
+    <p>{% if equipment.usage_cost_pence_per_hour %}{{ equipment.usage_cost_pence_per_hour|pounds }} per hour · minimum {{ minimum_minutes }} minutes{% else %}No usage charge{% endif %}{% if equipment.room %} · {{ equipment.room }}{% endif %}</p>
+    {% if state.step == "unpaid" %}
+      {% if equipment.induction_fee_pence %}
+        <p>To use it, pay its one-off access fee of {{ equipment.induction_fee_pence|pounds }}. It goes towards the
+          machine's upkeep and, in time, its replacement. You'll then be on the list for a trainer to sign you off.</p>
+        <p><a href="{% url 'payments:pay' %}">Pay the access fee</a></p>
+      {% else %}
+        <p>To use it, ask one of its trainers to train you.</p>
+      {% endif %}
+    {% elif state.step == "waiting" %}
+      <p>You've paid the access fee{% if state.induction.payment %} ({{ state.induction.payment.paid_at|date:"j F Y" }}){% endif %}.
+        {% if state.course_needed %}Next, finish the online course; then a trainer can sign you off.
+        {% else %}A trainer can now sign you off: ask one of the trainers below.{% endif %}</p>
+    {% elif state.step == "trained" %}
+      <p class="ok">You're trained on it{% if state.induction.trained_at %} (since {{ state.induction.trained_at|date:"j F Y" }}){% endif %}.</p>
+    {% endif %}
+
+    {% if equipment.moodle_course_id %}
+      <h3>Online course</h3>
+      {% if course_link %}<p><a class="member-button member-button--primary" href="{{ course_link }}">{% if state.course_done %}Revisit{% else %}Open{% endif %} the course for {{ equipment.name }} ↗</a></p>
+      <p class="hint">On our Moodle learning site. Completing the online course does not replace practical sign-off.</p>{% endif %}
+      {% if state.course_done %}
+        <p class="ok">You've finished it.</p>
+      {% elif state.course_kept %}
+        <p>You were signed off before the course was needed, so you keep your access{% if course_link %}; the
+          <a href="{{ course_link }}">course</a> is there if you'd like it{% endif %}.</p>
+      {% else %}
+        <p>You haven't finished it yet. Log in on our training site with <strong>Log in with BBMS</strong>.</p>
+        <div class="actions">
+
+          {% if can_check_course %}
+            <form method="post" action="{% url 'moodle:check-now' equipment.moodle_course_id %}" class="inline">
+              {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+              <button type="submit" class="link">I've finished the course, check now</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {% if state.step == "none" or state.step == "trained" %}
+      {% if refusal %}<p><strong>Right now:</strong> {{ refusal }}</p>{% else %}<p>Tap your fob on its reader to start.</p>{% endif %}
+    {% endif %}
+  </section>
+
   {% if photos %}
     <ul class="equipment-photos">
       {% for photo in photos %}
@@ -60,49 +107,7 @@
     <details><summary>How to use it</summary>{{ help_html }}</details>
   {% endif %}
 
-  <section class="card">
-    <h2>You and this machine</h2>
-    {% if state.step == "unpaid" %}
-      {% if equipment.induction_fee_pence %}
-        <p>To use it, pay its one-off access fee of {{ equipment.induction_fee_pence|pounds }}. It goes towards the
-          machine's upkeep and, in time, its replacement. You'll then be on the list for a trainer to sign you off.</p>
-        <p><a href="{% url 'payments:pay' %}">Pay the access fee</a></p>
-      {% else %}
-        <p>To use it, ask one of its trainers to train you.</p>
-      {% endif %}
-    {% elif state.step == "waiting" %}
-      <p>You've paid the access fee{% if state.induction.payment %} ({{ state.induction.payment.paid_at|date:"j F Y" }}){% endif %}.
-        {% if state.course_needed %}Next, finish the online course; then a trainer can sign you off.
-        {% else %}A trainer can now sign you off: ask one of the trainers below.{% endif %}</p>
-    {% elif state.step == "trained" %}
-      <p class="ok">You're trained on it{% if state.induction.trained_at %} (since {{ state.induction.trained_at|date:"j F Y" }}){% endif %}.</p>
-    {% endif %}
 
-    {% if equipment.moodle_course_id %}
-      <h3>Online course</h3>
-      {% if state.course_done %}
-        <p class="ok">You've finished it.</p>
-      {% elif state.course_kept %}
-        <p>You were signed off before the course was needed, so you keep your access{% if course_link %}; the
-          <a href="{{ course_link }}">course</a> is there if you'd like it{% endif %}.</p>
-      {% else %}
-        <p>You haven't finished it yet. Log in on our training site with <strong>Log in with BBMS</strong>.</p>
-        <p class="actions">
-          {% if course_link %}<a href="{{ course_link }}">Go to the course</a>{% endif %}
-          {% if can_check_course %}
-            <form method="post" action="{% url 'moodle:check-now' equipment.moodle_course_id %}" class="inline">
-              {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
-              <button type="submit" class="link">I've finished the course, check now</button>
-            </form>
-          {% endif %}
-        </p>
-      {% endif %}
-    {% endif %}
-
-    {% if state.step == "none" or state.step == "trained" %}
-      {% if refusal %}<p><strong>Right now:</strong> {{ refusal }}</p>{% else %}<p>Tap your fob on its reader to start.</p>{% endif %}
-    {% endif %}
-  </section>
 
   {% if can_report %}
     <section id="report" class="equipment-panel{% if awaiting_reason %} card{% endif %}">
@@ -133,8 +138,7 @@
   {% endif %}
 
   {% if status_changes %}
-    <section class="equipment-panel">
-      <h2>Status history</h2>
+  <details class="card ux-disclosure"><summary>Previous status changes</summary>
       <ul class="plain">
         {% for change in status_changes %}
           <li><span class="hint">{{ change.created_at|date:"j M Y H:i" }}</span>
@@ -142,11 +146,10 @@
             {% if change.reported_by %}<span class="hint">({{ change.reported_by.display_name }}, {{ change.get_source_display|lower }})</span>{% endif %}</li>
         {% endfor %}
       </ul>
-    </section>
+    </details>
   {% endif %}
 
-  <section>
-    <h2>Running hours and servicing</h2>
+  <details class="card ux-disclosure"><summary>Servicing and maintenance</summary>
     <dl class="details">
       <dt>Running hours</dt><dd>{{ hours.total|floatformat:1 }}</dd>
       <dt>Since the last service</dt><dd>{{ hours.since_service|floatformat:1 }}{% if hours.interval %} of {{ hours.interval }}{% endif %}
@@ -174,7 +177,7 @@
         <p class="hint">The hours since the last service start again from this date.</p>
       </form>
     {% endif %}
-  </section>
+  </details>
 
   {% if equipment.requires_induction %}
     <section>
@@ -210,8 +213,7 @@
     </section>
   {% endif %}
 
-  <section>
-    <h2>Use</h2>
+  <details class="card ux-disclosure"{% if request.GET.page %} open{% endif %}><summary>Usage history</summary>
     <p>Used for {{ usage.used }} minutes; training {{ usage.training }}, testing {{ usage.testing }},
       maintenance {{ usage.maintenance }}.</p>
     {% if sessions %}
@@ -249,5 +251,5 @@
     {% else %}
       <p>No sessions yet.</p>
     {% endif %}
-  </section>
+  </details>
 {% endblock %}

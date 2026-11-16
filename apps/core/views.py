@@ -19,6 +19,10 @@ def home(request):
         in_space = activity.count()
     context = {"in_space": in_space}
     if request.user.is_authenticated:
+        from apps.access.decisions import door_refusal_reason
+        from apps.members import id_documents
+        from apps.payments.credit import credit_pence
+
         from . import themes
 
         context["themes"] = themes.THEMES
@@ -32,6 +36,10 @@ def home(request):
                     else ""
                 ),
                 "last_visit": visits.last,
+                "credit_pence": credit_pence(request.user),
+                "door_reason": door_refusal_reason(request.user),
+                "id_status": id_documents.status(request.user),
+                "unpaid_charges": request.user.charges.filter(status__in=("due", "failed")).count(),
             }
         )
     return render(request, "core/home.html", context)

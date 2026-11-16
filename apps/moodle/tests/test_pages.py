@@ -38,8 +38,8 @@ class TrainingPageTests(TestCase):
         self.assertContains(response, "finished the course, check now")
         self.assertContains(response, "You haven't finished this course yet.")
 
-    def test_without_a_moodle_address_there_is_no_link(self):
-        self.assertNotContains(self.client.get(self.url), "course/view.php")
+    def test_without_a_moodle_address_links_use_build_brighton_learning(self):
+        self.assertContains(self.client.get(self.url), "https://learning.buildbrighton.com/course/view.php?id=7")
 
     def test_a_finished_course_shows_when(self):
         self.fake.add_user(self.kim)
@@ -47,6 +47,7 @@ class TrainingPageTests(TestCase):
         TrainingCompletion.objects.create(member=self.kim, moodle_course_id=COURSE, completed_at=timezone.now())
         response = self.client.get(self.url)
         self.assertContains(response, "You finished the course on")
+        self.assertContains(response, "Revisit this course")
         self.assertContains(response, "A trainer can sign you off now.")
         self.assertNotContains(response, "finished the course, check now")  # no button once it's done
 

@@ -1,0 +1,13 @@
+{% if not user.email_verified or unpaid_charges or id_status == "needed" or id_status == "rejected" or user.general_induction_status == "to-do" or user.status == "setting-up" %}
+<section class="ux-attention card" aria-labelledby="next-actions-title">
+  <h2 id="next-actions-title">Your next steps</h2>
+  <p>Start here to get your membership ready.</p>
+  <ul class="ux-task-list">
+    {% if not user.email_verified %}<li><div><strong>Confirm your email</strong><p>Use the link we emailed you, or request another.</p></div><a class="member-button" href="{% url 'members:account' %}#account-profile">Confirm email</a></li>{% endif %}
+    {% if unpaid_charges %}<li><div><strong>{{ unpaid_charges }} payment{{ unpaid_charges|pluralize }} to resolve</strong><p>Review what is due and choose how to pay.</p></div><a class="member-button" href="{% url 'billing:payment' %}">Review payments</a></li>{% endif %}
+    {% if id_status == "needed" or id_status == "rejected" %}<li><div><strong>{% if id_status == "rejected" %}Resend your identity documents{% else %}Upload your identity documents{% endif %}</strong><p>Only trustees can review these.</p></div><a class="member-button" href="{% url 'members:id-documents' %}">Upload documents</a></li>{% endif %}
+    {% if user.general_induction_status == "to-do" %}<li><div><strong>Complete your general induction</strong><p>Read the guidance before your introduction to the space.</p></div><a class="member-button" href="{% url 'members:induction' %}">Start induction</a></li>{% endif %}
+    {% if user.status == "setting-up" %}<li><div><strong>Finish setting up your membership</strong><p>Your account has the complete joining checklist.</p></div><a class="member-button" href="{% url 'members:account' %}#joining-checklist">View joining checklist</a></li>{% endif %}
+  </ul>
+</section>
+{% endif %}

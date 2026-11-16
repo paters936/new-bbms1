@@ -129,6 +129,15 @@ def reader_for(equipment):
 class EquipmentAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "status", "requires_induction", "usage_cost_pence_per_hour", "team", "archived")
     actions = ["retire"]
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "moodle_course_id":
+            kwargs["help_text"] = (
+                "The number after id= in the Moodle course URL on learning.buildbrighton.com. "
+                "Linking a course makes it a training requirement; review the existing-member options below."
+            )
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
     list_filter = ("status", "requires_induction", "archived", "team")
     search_fields = ("name", "slug", "asset_tag_id")
     prepopulated_fields = {"slug": ("name",)}

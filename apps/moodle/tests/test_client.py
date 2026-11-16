@@ -104,5 +104,10 @@ class WhichClientTests(TestCase):
             with self.assertRaises(MoodleUnavailable):
                 client.client().course_status(1, 1)
 
-    def test_no_address_means_no_course_link(self):
-        self.assertEqual(client.course_link(7), "")
+    @override_settings(MOODLE_TOKEN="")
+    def test_default_learning_link_does_not_enable_live_completion_checks(self):
+        set_moodle_address("")
+        self.assertEqual(client.course_link(7), "https://learning.buildbrighton.com/course/view.php?id=7")
+        self.assertFalse(client.configured())
+        with mock.patch.object(client, "using_fake", return_value=False):
+            self.assertFalse(client.enabled())
