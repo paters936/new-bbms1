@@ -58,7 +58,7 @@ html { scroll-padding-top:5rem; }
   .ux-finance-nav { flex-direction:column; }
   .ux-finance-group { width:100%; }
   .portal-main input,.portal-main select,.portal-main textarea,body.backdrop input { font-size:1rem; }
-  .portal-main .ux-mobile-table { min-width:0; width:100%; }
+  .portal-main .account-destination .ux-mobile-table,.portal-main .ux-mobile-table { min-width:0; width:100%; }
   .ux-mobile-table thead { position:absolute; width:1px; height:1px; clip-path:inset(50%); overflow:hidden; }
   .ux-mobile-table tbody,.ux-mobile-table tr { display:block; width:100%; }
   .ux-mobile-table tr { padding:.75rem 0; border-bottom:1px solid var(--border); }
