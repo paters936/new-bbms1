@@ -46,7 +46,7 @@ class AccountPageTests(TestCase):
         self.assertContains(response, "£12.50")
         self.assertContains(response, "0001234567")
         self.assertContains(response, "Red laser")
-        self.assertNotContains(response, "Next steps")
+        self.assertNotContains(response, "Your next steps")
 
     def test_lost_fobs_are_not_listed(self):
         fob = KeyFob.objects.create(member=self.member, card_number=42)
@@ -68,7 +68,7 @@ class AccountPageTests(TestCase):
     def test_a_new_member_sees_next_steps(self):
         self.member.status = Member.Status.SETTING_UP
         self.member.save()
-        self.assertContains(self.client.get("/account/"), "Next steps")
+        self.assertContains(self.client.get("/account/"), "Your next steps")
 
     def test_every_link_opens_for_a_new_member(self):
         """A member who is still setting up can't open the equipment or expenses pages yet, so the account page
